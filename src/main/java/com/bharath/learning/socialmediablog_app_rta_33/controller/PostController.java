@@ -34,7 +34,7 @@ public class PostController {
 
     //GET /v1/api/posts/{id}
     @GetMapping("/{id}")
-    public ResponseEntity<PostDto> getPostById(@PathVariable long id,@RequestParam String order) {
+    public ResponseEntity<PostDto> getPostById(@PathVariable long id) {
        PostDto postDto =  postService.getPostById(id);
        return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
