@@ -1,6 +1,7 @@
 package com.bharath.learning.socialmediablog_app_rta_33.service.impl;
 
 import com.bharath.learning.socialmediablog_app_rta_33.dto.PostDto;
+import com.bharath.learning.socialmediablog_app_rta_33.excpetions.ResourceNotFoundException;
 import com.bharath.learning.socialmediablog_app_rta_33.model.PostEntity;
 import com.bharath.learning.socialmediablog_app_rta_33.repository.PostRepository;
 import com.bharath.learning.socialmediablog_app_rta_33.service.PostService;
@@ -29,6 +30,50 @@ public class PostServiceImpl implements PostService {
         return null;
     }
 
+
+    @Override
+    public PostDto getPostById(long postId) {
+        PostEntity postEntity = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post","id", String.valueOf(postId)));
+        return mapEntityToDto(postEntity);
+    }
+
+    @Override
+    public PostDto createPost(PostDto inPostDto) {
+       PostEntity postEntity = mapDtoToEntity(inPostDto);
+
+       PostEntity savedPostEntity = postRepository.save(postEntity);
+       PostDto outPostDto =  mapEntityToDto(savedPostEntity);
+       return outPostDto;
+    }
+
+
+
+    @Override
+    public PostDto updatePost(PostDto postDto, long postId) {
+
+        //find resource by Id
+      PostEntity postEntityToBeUpdated =  postRepository.findById(postId).orElseThrow(() ->  new ResourceNotFoundException("Post","id", String.valueOf(postId)));
+
+      //map the updated resource
+      postEntityToBeUpdated.setTitle(postDto.getTitle());
+      postEntityToBeUpdated.setDescription(postDto.getDescription());
+      postEntityToBeUpdated.setContent(postDto.getContent());
+
+      //save into database
+      PostEntity updatedPostEntity = postRepository.save(postEntityToBeUpdated);
+
+      //convert entity to dto and return the dto
+      return mapEntityToDto(updatedPostEntity);
+    }
+
+    @Override
+    public void deletePostById(long postId) {
+        PostEntity postEntityToBeDeleted =  postRepository.findById(postId).orElseThrow(() ->  new ResourceNotFoundException("Post","id", String.valueOf(postId)));
+        postRepository.delete(postEntityToBeDeleted);
+    }
+
+
+
     private PostDto mapEntityToDto(PostEntity postEntity) {
         PostDto postDto = new PostDto();
         postDto.setId(postEntity.getId());
@@ -38,23 +83,15 @@ public class PostServiceImpl implements PostService {
         return postDto;
     }
 
-    @Override
-    public PostDto getPostById(long id) {
-        return null;
+
+    private PostEntity mapDtoToEntity(PostDto postDto) {
+        PostEntity postEntity = new PostEntity();
+        postEntity.setDescription(postDto.getDescription());
+        postEntity.setTitle(postDto.getTitle());
+        postEntity.setContent(postDto.getContent());
+        return postEntity;
     }
 
-    @Override
-    public PostDto createPost(PostDto postDto) {
-        return null;
-    }
 
-    @Override
-    public PostDto updatePost(PostDto postDto, long postId) {
-        return null;
-    }
 
-    @Override
-    public void deletePostById(long id) {
-
-    }
 }
