@@ -25,6 +25,7 @@ public class PostController {
     }
 
 
+
     //POST /v1/api/posts
     @PostMapping
     public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto) {
