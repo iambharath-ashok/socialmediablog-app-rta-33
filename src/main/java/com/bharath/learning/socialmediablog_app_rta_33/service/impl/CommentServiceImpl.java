@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -47,12 +48,60 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentDto> getAllCommentsByPostId(long postId) {
+
+       List<CommentEntity> commentEntities = commentRepository.findByPostId(postId);
+       if(commentEntities != null && !commentEntities.isEmpty()) {
+         return  commentEntities.stream().map(commentEntity -> convertEntityToDto(commentEntity)).collect(Collectors.toList());
+       }
         return null;
     }
 
     @Override
     public CommentDto getCommentByPostIdAndCommentId(long postId, long commentId) {
-        return null;
+
+        //Fetch Post Entity using Post Repository from postId
+        PostEntity postEntity = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "Id", String.valueOf(postId)) );
+
+
+        //Fetch Comment Entity using Comment Repository from commentId
+       CommentEntity commentEntity = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment", "Id", String.valueOf(commentId)) );
+
+        //Validate comment belong to that particular Post
+       if(!commentEntity.getPostEntity().getId().equals(postEntity.getId())) {
+           throw new RuntimeException("Bad Request:: Comment Not Found");
+       }
+
+
+        //Map Comment Entity to Comment Dto
+        return convertEntityToDto(commentEntity);
+    }
+
+    @Override
+    public CommentDto updateCommentByPostIdAndCommentId(long postId, long commentId, CommentDto commentDto) {
+
+        //Fetch Post Entity using Post Repository from postId
+        PostEntity postEntity = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "Id", String.valueOf(postId)) );
+
+
+        //Fetch Comment Entity using Comment Repository from commentId
+        CommentEntity commentEntity = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment", "Id", String.valueOf(commentId)) );
+
+        //Validate comment belong to that particular Post
+        if(!commentEntity.getPostEntity().getId().equals(postEntity.getId())) {
+            throw new RuntimeException("Bad Request:: Comment Not Found");
+        }
+
+
+        //Update old Comment Details with new Comment Dto
+        commentEntity.setBody(commentDto.getBody());
+        commentEntity.setUserName(commentDto.getUserName());
+        commentEntity.setEmail(commentDto.getEmail());
+
+        //Save Comment Entity to DB
+        CommentEntity newlySavedCommentEntity = commentRepository.save(commentEntity);
+
+        //Map Comment Entity to Comment DTO
+        return convertEntityToDto(newlySavedCommentEntity);
     }
 
 
