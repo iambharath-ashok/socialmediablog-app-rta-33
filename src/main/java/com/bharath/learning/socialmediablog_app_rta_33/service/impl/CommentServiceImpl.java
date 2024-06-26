@@ -7,6 +7,12 @@ import com.bharath.learning.socialmediablog_app_rta_33.model.PostEntity;
 import com.bharath.learning.socialmediablog_app_rta_33.repository.CommentRepository;
 import com.bharath.learning.socialmediablog_app_rta_33.repository.PostRepository;
 import com.bharath.learning.socialmediablog_app_rta_33.service.CommentService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +27,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
 
     @Override
@@ -104,22 +113,64 @@ public class CommentServiceImpl implements CommentService {
         return convertEntityToDto(newlySavedCommentEntity);
     }
 
+    @Override
+    public CommentDto updateCommentByPostIdAndCommentIdUsingJsonPatch(long postId, long commentId, JsonPatch jsonPatch) {
+        //Fetch Post Entity using Post Repository from postId
+        PostEntity postEntity = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "Id", String.valueOf(postId)) );
+
+
+        //Fetch Comment Entity using Comment Repository from commentId
+        CommentEntity commentEntity = commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment", "Id", String.valueOf(commentId)) );
+
+        //Validate comment belong to that particular Post
+        if(!commentEntity.getPostEntity().getId().equals(postEntity.getId())) {
+            throw new RuntimeException("Bad Request:: Comment Not Found");
+        }
+
+        CommentDto  commentDto = convertEntityToDto(commentEntity);
+
+        try {
+            commentDto = applyPatchToComment(jsonPatch, commentDto);
+        } catch (JsonPatchException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        CommentEntity patchedCommentEntity = convertDtoToEntity(commentDto);
+        patchedCommentEntity.setPostEntity(postEntity);
+        commentRepository.save(patchedCommentEntity);
+
+        return commentDto;
+    }
+
+
 
     private CommentEntity convertDtoToEntity(CommentDto commentDto) {
-        CommentEntity commentEntity = new CommentEntity();
-        commentEntity.setUserName(commentDto.getUserName());
-        commentEntity.setEmail(commentDto.getEmail());
-        commentEntity.setBody(commentDto.getBody());
+//        CommentEntity commentEntity = new CommentEntity();
+//        commentEntity.setUserName(commentDto.getUserName());
+//        commentEntity.setEmail(commentDto.getEmail());
+//        commentEntity.setBody(commentDto.getBody());
+        CommentEntity commentEntity = modelMapper.map(commentDto, CommentEntity.class);
         return commentEntity;
     }
 
 
     private CommentDto convertEntityToDto(CommentEntity commentEntity) {
-        CommentDto commentDto = new CommentDto();
-        commentDto.setId(commentEntity.getId());
-        commentDto.setUserName(commentEntity.getUserName());
-        commentDto.setEmail(commentEntity.getEmail());
-        commentDto.setBody(commentEntity.getBody());
+//        CommentDto commentDto = new CommentDto();
+//        commentDto.setId(commentEntity.getId());
+//        commentDto.setUserName(commentEntity.getUserName());
+//        commentDto.setEmail(commentEntity.getEmail());
+//        commentDto.setBody(commentEntity.getBody());
+        CommentDto commentDto = modelMapper.map(commentEntity, CommentDto.class);
         return commentDto;
+    }
+
+    private CommentDto applyPatchToComment(JsonPatch jsonPatch, CommentDto commentDto) throws JsonPatchException, JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode commentDtoJsonNode = objectMapper.convertValue(commentDto, JsonNode.class);
+        JsonNode patchedJsonNode = jsonPatch.apply(commentDtoJsonNode);
+        return objectMapper.treeToValue(patchedJsonNode, CommentDto.class);
+
     }
 }
