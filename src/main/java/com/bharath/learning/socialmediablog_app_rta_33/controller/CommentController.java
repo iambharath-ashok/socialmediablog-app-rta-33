@@ -3,6 +3,7 @@ package com.bharath.learning.socialmediablog_app_rta_33.controller;
 
 import com.bharath.learning.socialmediablog_app_rta_33.dto.CommentDto;
 import com.bharath.learning.socialmediablog_app_rta_33.service.CommentService;
+import com.github.fge.jsonpatch.JsonPatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,14 @@ public class CommentController {
 
     // Delete all comments under particular post by PostId
     //DELETE /v1/api/posts/{postId}/comments
+
+
+    //PATCH /v1/api/posts/{postId}/comments/{commentId}
+    @PatchMapping("/posts/{postId}/comments/{commentId}")
+    public CommentDto partiallyUpdateCommentByPostIdAndCommentId(@PathVariable long postId, @PathVariable long commentId, @RequestBody JsonPatch jsonPatch) {
+        CommentDto patchedCommentDto =   commentService.updateCommentByPostIdAndCommentIdUsingJsonPatch(postId, commentId, jsonPatch);
+        return patchedCommentDto;
+    }
 
 
 }

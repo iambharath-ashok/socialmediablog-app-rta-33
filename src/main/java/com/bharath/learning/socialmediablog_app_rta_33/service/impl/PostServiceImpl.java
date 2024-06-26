@@ -6,6 +6,7 @@ import com.bharath.learning.socialmediablog_app_rta_33.model.PostEntity;
 import com.bharath.learning.socialmediablog_app_rta_33.payload.PostResponse;
 import com.bharath.learning.socialmediablog_app_rta_33.repository.PostRepository;
 import com.bharath.learning.socialmediablog_app_rta_33.service.PostService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,10 @@ public class PostServiceImpl implements PostService {
 
     @Autowired
     private PostRepository postRepository;
+
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public List<PostDto> getAllPosts() {
@@ -136,20 +141,22 @@ public class PostServiceImpl implements PostService {
 
 
     private PostDto mapEntityToDto(PostEntity postEntity) {
-        PostDto postDto = new PostDto();
-        postDto.setId(postEntity.getId());
-        postDto.setTitle(postEntity.getTitle());
-        postDto.setDescription(postEntity.getDescription());
-        postDto.setContent(postEntity.getContent());
+//        PostDto postDto = new PostDto();
+//        postDto.setId(postEntity.getId());
+//        postDto.setTitle(postEntity.getTitle());
+//        postDto.setDescription(postEntity.getDescription());
+//        postDto.setContent(postEntity.getContent());
+        PostDto postDto = modelMapper.map(postEntity, PostDto.class);
         return postDto;
     }
 
 
     private PostEntity mapDtoToEntity(PostDto postDto) {
-        PostEntity postEntity = new PostEntity();
-        postEntity.setDescription(postDto.getDescription());
-        postEntity.setTitle(postDto.getTitle());
-        postEntity.setContent(postDto.getContent());
+//        PostEntity postEntity = new PostEntity();
+//        postEntity.setDescription(postDto.getDescription());
+//        postEntity.setTitle(postDto.getTitle());
+//        postEntity.setContent(postDto.getContent());
+        PostEntity postEntity = modelMapper.map(postDto, PostEntity.class);
         return postEntity;
     }
 
