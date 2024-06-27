@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -144,6 +145,20 @@ public class CommentServiceImpl implements CommentService {
         return commentDto;
     }
 
+    @Override
+    public String deleteCommentByPostIdAndCommentId(long postId, long commentId) {
+        return null;
+    }
+
+    @Override
+    public String deleteAllCommentsOfPostFromPostId(long postId) {
+        //Fetching PostEntity using PostRepository from postId
+        PostEntity postEntity=postRepository.findById(postId).orElseThrow(()->new ResourceNotFoundException("Post","Id",String.valueOf(postId)));
+        //deleting all the comments for that particular Post
+        commentRepository.deleteByPostId(postId);
+        return "All the Comments for the post with Id : " + postId + " is deleted.";
+
+    }
 
 
     private CommentEntity convertDtoToEntity(CommentDto commentDto) {
