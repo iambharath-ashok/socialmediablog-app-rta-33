@@ -17,4 +17,8 @@ public interface CommentService {
     CommentDto updateCommentByPostIdAndCommentId(long postId, long commentId, CommentDto commentDto);
 
     CommentDto updateCommentByPostIdAndCommentIdUsingJsonPatch(long postId, long commentId, JsonPatch jsonPatch);
+
+    String deleteCommentByPostIdAndCommentId(long postId,long commentId);
+    String deleteAllCommentsOfPostFromPostId(long postId);
+
 }

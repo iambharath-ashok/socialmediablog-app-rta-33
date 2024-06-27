@@ -54,6 +54,10 @@ public class CommentController {
 
     // Delete all comments under particular post by PostId
     //DELETE /v1/api/posts/{postId}/comments
+    @DeleteMapping("/posts/{postId}/comments")
+    public ResponseEntity<String> deleteAllCommentsByPosId(@PathVariable long postId) {
+        return new ResponseEntity<>(commentService.deleteAllCommentsOfPostFromPostId(postId), HttpStatus.OK);
+    }
 
 
     //PATCH /v1/api/posts/{postId}/comments/{commentId}
