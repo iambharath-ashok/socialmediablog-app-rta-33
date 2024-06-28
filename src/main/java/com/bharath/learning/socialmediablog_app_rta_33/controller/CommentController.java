@@ -4,6 +4,7 @@ package com.bharath.learning.socialmediablog_app_rta_33.controller;
 import com.bharath.learning.socialmediablog_app_rta_33.dto.CommentDto;
 import com.bharath.learning.socialmediablog_app_rta_33.service.CommentService;
 import com.github.fge.jsonpatch.JsonPatch;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class CommentController {
 
     // POST /v1/api/posts/{postId}/comments
     @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<CommentDto> createComment(@PathVariable long postId, @RequestBody CommentDto commentDto) {
+    public ResponseEntity<CommentDto> createComment(@PathVariable long postId, @RequestBody @Valid CommentDto commentDto) {
        CommentDto savedCommentDto = commentService.createComment(postId, commentDto);
        return new ResponseEntity<>(savedCommentDto, HttpStatus.CREATED);
     }
@@ -43,7 +44,7 @@ public class CommentController {
 
     //PUT /v1/api/posts/{postId}/comments/{commentId}
     @PutMapping("/posts/{postId}/comments/{commentId}")
-    public ResponseEntity<CommentDto> updateCommentByPostIdAndCommentId(@PathVariable long postId, @PathVariable long commentId, @RequestBody CommentDto commentDto) {
+    public ResponseEntity<CommentDto> updateCommentByPostIdAndCommentId(@PathVariable long postId, @PathVariable long commentId, @Valid @RequestBody CommentDto commentDto) {
         CommentDto updatedCommentDto = commentService.updateCommentByPostIdAndCommentId(postId, commentId, commentDto);
         return new ResponseEntity<>(updatedCommentDto, HttpStatus.OK);
     }
