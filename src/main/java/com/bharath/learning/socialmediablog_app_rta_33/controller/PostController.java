@@ -3,6 +3,7 @@ package com.bharath.learning.socialmediablog_app_rta_33.controller;
 
 import com.bharath.learning.socialmediablog_app_rta_33.dto.PostDto;
 import com.bharath.learning.socialmediablog_app_rta_33.service.PostService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class PostController {
 
     //POST /v1/api/posts
     @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto) {
+    public ResponseEntity<PostDto> createPost(@RequestBody @Valid PostDto postDto) {
        PostDto savedPostDto = postService.createPost(postDto);
        return new ResponseEntity<>(savedPostDto, HttpStatus.CREATED);
     }
@@ -42,7 +43,7 @@ public class PostController {
 
     //PUT /v1/api/posts/{id}
     @PutMapping("/{id}")
-    public ResponseEntity<PostDto> updatePostById(@PathVariable  long id,@RequestBody PostDto postDto) {
+    public ResponseEntity<PostDto> updatePostById(@PathVariable  long id, @Valid @RequestBody PostDto postDto) {
        PostDto updatedPost = postService.updatePost(postDto, id);
        return ResponseEntity.ok(updatedPost);
     }
