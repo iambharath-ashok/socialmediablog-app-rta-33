@@ -4,7 +4,9 @@ package com.bharath.learning.socialmediablog_app_rta_33.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -27,6 +29,12 @@ public class SecurityConfig {
 
 
     @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+      return  authenticationConfiguration.getAuthenticationManager();
+    }
+
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.GET, "v1/api/**").permitAll())
@@ -36,7 +44,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
+    /*@Bean
     public UserDetailsService userDetailsService() {
         UserDetails bharath = User.builder()
                 .username("bharath")
@@ -50,7 +58,7 @@ public class SecurityConfig {
                 .roles("USER", "ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(bharath, admin);
-    }
+    }*/
 
 
 }
